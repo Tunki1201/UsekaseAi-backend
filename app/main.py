@@ -37,15 +37,15 @@ async def startup_db():
 
 
 # Include routers
-app.include_router(scraped_data_view.router)
-app.include_router(error_log_view.router)
-app.include_router(notification_view.router)
-app.include_router(chapter_view.router)
-app.include_router(api_usage_view.router)
-app.include_router(audit_log_view.router)
-app.include_router(payments_view.router)
-app.include_router(account_view.router)
 app.include_router(user_router, prefix="/api")
+app.include_router(scraped_data_view.router, prefix="/api")
+app.include_router(error_log_view.router, prefix="/api")
+app.include_router(notification_view.router, prefix="/api")
+app.include_router(chapter_view.router, prefix="/api")
+app.include_router(api_usage_view.router, prefix="/api")
+app.include_router(audit_log_view.router, prefix="/api")
+app.include_router(payments_view.router, prefix="/api")
+app.include_router(account_view.router, prefix="/api")
 app.include_router(report_view.router, prefix="/api")
 
 # If running this script directly, start Uvicorn server

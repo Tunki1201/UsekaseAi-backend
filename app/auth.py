@@ -3,7 +3,7 @@ from typing import Union
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-SECRET_KEY = "CommuneAI"
+SECRET_KEY = "UseKaseAI"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
