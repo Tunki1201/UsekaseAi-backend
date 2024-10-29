@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
 
-from app import db
+from app.db import db
 
 # MongoDB Chapter collection
 user_collection = db["users"]
