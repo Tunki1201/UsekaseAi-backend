@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
-from models.client_model import Client
-from controllers import client_controller
+from app.models.client_model import Client
+from app.controllers import client_controller
 
 router = APIRouter()
 

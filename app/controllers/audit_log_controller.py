@@ -1,5 +1,5 @@
 from bson import ObjectId
-from models.audit_log_model import audit_log_collection, audit_log_helper, AuditLog
+from app.models.audit_log_model import audit_log_collection, audit_log_helper, AuditLog
 
 # CRUD Operations for Audit Log
 

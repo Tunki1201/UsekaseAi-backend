@@ -1,13 +1,22 @@
 # app/db.py
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from app.config import settings
+from motor.motor_asyncio import AsyncIOMotorClient
+import os
+from dotenv import load_dotenv
 
-DATABASE_URL = settings.database_url
+# Load environment variables from .env file
+load_dotenv()
 
-engine = create_async_engine(DATABASE_URL, echo=True)
-SessionLocal = sessionmaker(
-    autocommit=False, autoflush=False, bind=engine, class_=AsyncSession
-)
-Base = declarative_base()
+MONGODB_URI = os.getenv("MONGODB_URI")
+MONGODB_DB_NAME = os.getenv("MONGODB_DB_NAME")
+
+# Initialize MongoDB client
+client = AsyncIOMotorClient(MONGODB_URI)
+db = client[MONGODB_DB_NAME]  # Access the specific database
+
+# Example function to get collection
+def get_collection(collection_name: str):
+    return db[collection_name]
+
+# Close connection (optional, e.g., for app shutdown)
+async def close_connection():
+    client.close()

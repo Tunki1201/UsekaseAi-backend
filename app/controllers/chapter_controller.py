@@ -1,5 +1,5 @@
 from bson import ObjectId
-from models.chapter_model import chapter_collection, chapter_helper, Chapter
+from app.models.chapter_model import chapter_collection, chapter_helper, Chapter
 
 # CRUD Operations for Chapter
 

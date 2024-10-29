@@ -1,5 +1,5 @@
 from bson import ObjectId
-from models.prompt_data_model import (
+from app.models.prompt_data_model import (
     prompt_data_collection,
     prompt_data_helper,
     PromptData,

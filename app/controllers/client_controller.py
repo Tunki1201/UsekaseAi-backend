@@ -1,5 +1,5 @@
 from bson import ObjectId
-from models.client_model import client_collection, client_helper, Client
+from app.models.client_model import client_collection, client_helper, Client
 
 # CRUD Operations for Client
 

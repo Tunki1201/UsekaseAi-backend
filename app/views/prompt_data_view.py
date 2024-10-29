@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
-from models.prompt_data_model import PromptData
-from controllers import prompt_data_controller
+from app.models.prompt_data_model import PromptData
+from app.controllers import prompt_data_controller
 
 router = APIRouter()
 

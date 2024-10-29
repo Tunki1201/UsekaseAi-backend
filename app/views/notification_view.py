@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
-from models.notification_model import Notification
-from controllers import notification_controller
+from app.models.notification_model import Notification
+from app.controllers import notification_controller
 
 router = APIRouter()
 

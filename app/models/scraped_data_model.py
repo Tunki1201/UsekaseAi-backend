@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 from bson import ObjectId  # Import ObjectId
-from database.mongodb import db  # Import the database setup
+from app.db import db  # Import the database setup
 
 # MongoDB Scraped Data collection
 scraped_data_collection = db["scraped_data"]

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
-from models.audit_log_model import AuditLog
-from controllers import audit_log_controller
+from app.models.audit_log_model import AuditLog
+from app.controllers import audit_log_controller
 
 router = APIRouter()
 

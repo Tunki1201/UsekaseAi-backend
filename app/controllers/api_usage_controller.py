@@ -1,5 +1,5 @@
 from bson import ObjectId
-from models.api_usage_model import api_usage_collection, api_usage_helper, APIUsage
+from app.models.api_usage_model import api_usage_collection, api_usage_helper, APIUsage
 
 # CRUD Operations for API Usage
 

@@ -12,7 +12,7 @@ from app.views import (
 )
 from app.views.user_view import router as user_router
 
-from app.db import engine, Base
+from app.db import client, close_connection  # Use MongoDB client and close function from db.py
 from fastapi.middleware.cors import CORSMiddleware  # If you need CORS support
 import uvicorn
 
@@ -28,13 +28,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# Event handler to create database tables on startup
+# Event handler for MongoDB connection on startup
 @app.on_event("startup")
 async def startup_db():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    try:
+        # Ping MongoDB to check connection
+        await client.admin.command("ping")
+        print("Connected to MongoDB!")
+    except Exception as e:
+        print("Error connecting to MongoDB:", e)
 
+# Event handler to close MongoDB connection on shutdown
+@app.on_event("shutdown")
+async def shutdown_db():
+    await close_connection()
 
 # Include routers
 app.include_router(user_router, prefix="/api")

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
-from models.payments_model import Payment
-from controllers import payments_controller
+from app.models.payments_model import Payment
+from app.controllers import payments_controller
 
 router = APIRouter()
 

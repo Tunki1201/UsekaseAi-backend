@@ -1,5 +1,5 @@
 from bson import ObjectId
-from models.error_log_model import error_log_collection, error_log_helper, ErrorLog
+from app.models.error_log_model import error_log_collection, error_log_helper, ErrorLog
 
 # CRUD Operations for Error Log
 

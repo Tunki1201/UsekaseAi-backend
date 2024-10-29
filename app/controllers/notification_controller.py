@@ -1,5 +1,5 @@
 from bson import ObjectId
-from models.notification_model import (
+from app.models.notification_model import (
     notification_collection,
     notification_helper,
     Notification,

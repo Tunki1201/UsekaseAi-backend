@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
-from models.error_log_model import ErrorLog
-from controllers import error_log_controller
+from app.models.error_log_model import ErrorLog
+from app.controllers import error_log_controller
 
 router = APIRouter()
 

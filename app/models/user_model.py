@@ -1,11 +1,11 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
-from database.mongodb import (
-    user_collection,
-)  # Import the user_collection from mongodb.py
 
+from app import db
 
+# MongoDB Chapter collection
+user_collection = db["users"]
 # Pydantic model
 class User(BaseModel):
     id: Optional[str] = Field(None, alias="_id")

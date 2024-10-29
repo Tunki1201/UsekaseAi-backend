@@ -1,5 +1,5 @@
 from bson import ObjectId
-from models.scraped_data_model import (
+from app.models.scraped_data_model import (
     scraped_data_collection,
     scraped_data_helper,
     ScrapedData,

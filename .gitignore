@@ -1,2 +1,61 @@
-venv
+# Python cache files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual environment directories
+env/
+venv/
+.venv/
+
+# Environment variables file
 .env
+.env.*
+
+# Logs
+*.log
+logs/
+*.out
+
+# Database and other local storage
+*.sqlite3
+*.db
+*.sql
+*.data
+*.sqlite
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Testing output
+coverage/
+*.cover
+.cache/
+nosetests.xml
+coverage.xml
+*.coveragerc
+*.pytest_cache
+
+# MyPy
+.mypy_cache/
+
+# Pydantic cache
+__pydantic_cache__/
+
+# FastAPI Static files or generated content
+staticfiles/
+media/
+
+# Uvicorn and gunicorn log files
+gunicorn.log
+gunicorn.error.log
+uvicorn.log
+
+# IDE configuration files (optional)
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project

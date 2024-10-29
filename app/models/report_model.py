@@ -2,7 +2,7 @@ from bson import ObjectId
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
-from database.mongodb import db  # Import the database setup
+from app.db import db  # Import the database setup
 
 # MongoDB Report collection
 report_collection = db["reports"]

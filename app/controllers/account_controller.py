@@ -1,5 +1,5 @@
 from bson import ObjectId
-from models.account_model import account_collection, account_helper, Account
+from app.models.account_model import account_collection, account_helper, Account
 
 # CRUD Operations for Account
 

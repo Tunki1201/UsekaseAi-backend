@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
-from models.scraped_data_model import ScrapedData
-from controllers import scraped_data_controller
+from app.models.scraped_data_model import ScrapedData
+from app.controllers import scraped_data_controller
 
 router = APIRouter()
 

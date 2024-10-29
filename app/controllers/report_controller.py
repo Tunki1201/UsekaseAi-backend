@@ -1,5 +1,5 @@
 from bson import ObjectId
-from models.report_model import report_collection, report_helper, Report
+from app.models.report_model import report_collection, report_helper, Report
 from datetime import datetime
 
 # CRUD Operations for Report

@@ -1,5 +1,5 @@
 from bson import ObjectId
-from models.user_model import user_collection, user_helper, User
+from app.models.user_model import user_collection, user_helper, User
 from datetime import datetime
 
 # CRUD Operations

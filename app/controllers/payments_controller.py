@@ -1,5 +1,5 @@
 from bson import ObjectId
-from models.payments_model import payments_collection, payment_helper, Payment
+from app.models.payments_model import payments_collection, payment_helper, Payment
 
 # CRUD Operations for Payments
 

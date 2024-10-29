@@ -1,7 +1,7 @@
 from bson import ObjectId
 from pydantic import BaseModel, Field
 from typing import Optional
-from database.mongodb import db  # Import the database setup
+from app.db import db  # Import the database setup
 
 # MongoDB Account collection
 account_collection = db["accounts"]
