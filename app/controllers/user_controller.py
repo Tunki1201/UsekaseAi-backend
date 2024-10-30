@@ -4,6 +4,7 @@ from datetime import datetime
 
 # CRUD Operations
 
+
 async def get_all_users():
     users = await user_collection.find().to_list(1000)
     return [user_helper(user) for user in users]

@@ -7,13 +7,13 @@ router = APIRouter()
 
 
 # GET all users
-@router.get("/users/", response_model=List[User])
+@router.get("/getAll/", response_model=List[User])
 async def get_users():
     return await user_controller.get_all_users()
 
 
 # GET a specific user by ID
-@router.get("/users/{id}", response_model=User)
+@router.get("/getUserById/{id}", response_model=User)
 async def get_user(id: str):
     user = await user_controller.get_user_by_id(id)
     if user is None:
@@ -22,13 +22,13 @@ async def get_user(id: str):
 
 
 # POST: Create a new user
-@router.post("/users/", response_model=User)
+@router.post("/create/", response_model=User)
 async def create_user(user: User):
     return await user_controller.create_user(user)
 
 
 # PUT: Update a user by ID
-@router.put("/users/{id}", response_model=User)
+@router.put("/update/{id}", response_model=User)
 async def update_user(id: str, user: User):
     updated_user = await user_controller.update_user(id, user)
     if updated_user is None:
@@ -37,7 +37,7 @@ async def update_user(id: str, user: User):
 
 
 # DELETE: Delete a user by ID
-@router.delete("/users/{id}")
+@router.delete("/delete/{id}")
 async def delete_user(id: str):
     deleted = await user_controller.delete_user(id)
     if not deleted:

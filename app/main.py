@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from app.auth_middleware import AuthMiddleware
 from app.views import (
     account_view,
     api_usage_view,
@@ -10,7 +11,8 @@ from app.views import (
     report_view,
     scraped_data_view,
 )
-from app.views.user_view import router as user_router
+from app.views import user_view
+from app.views.user_view import router
 
 from app.db import (
     client,
@@ -31,6 +33,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# # Add JWT Auth Middleware
+# app.add_middleware(AuthMiddleware)
+
 
 # Event handler for MongoDB connection on startup
 @app.on_event("startup")
@@ -50,16 +55,16 @@ async def shutdown_db():
 
 
 # Include routers
-app.include_router(user_router, prefix="/auth")
-app.include_router(scraped_data_view.router, prefix="/api")
-app.include_router(error_log_view.router, prefix="/api")
-app.include_router(notification_view.router, prefix="/api")
-app.include_router(chapter_view.router, prefix="/api")
-app.include_router(api_usage_view.router, prefix="/api")
-app.include_router(audit_log_view.router, prefix="/api")
-app.include_router(payments_view.router, prefix="/api")
-app.include_router(account_view.router, prefix="/api")
-app.include_router(report_view.router, prefix="/api")
+app.include_router(user_view.router, prefix="/user")
+app.include_router(scraped_data_view.router, prefix="/scraped_data")
+app.include_router(error_log_view.router, prefix="/error_log")
+app.include_router(notification_view.router, prefix="/notification")
+app.include_router(chapter_view.router, prefix="/chapter")
+app.include_router(api_usage_view.router, prefix="/api_usage")
+app.include_router(audit_log_view.router, prefix="/audit_log")
+app.include_router(payments_view.router, prefix="/payments")
+app.include_router(account_view.router, prefix="/account")
+app.include_router(report_view.router, prefix="/report")
 
 # If running this script directly, start Uvicorn server
 if __name__ == "__main__":

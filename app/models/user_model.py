@@ -12,7 +12,7 @@ class User(BaseModel):
     email: str
     first_name: str
     last_name: str
-    avatar: Optional[str]
+    imageUrl: Optional[str]
     auth_provider: str
     is_authenticated: bool = False
     client_id: Optional[str]
