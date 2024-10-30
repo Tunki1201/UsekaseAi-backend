@@ -5,7 +5,6 @@ from app.controllers import user_controller
 
 router = APIRouter()
 
-
 # GET all users
 @router.get("/getAll/", response_model=List[User])
 async def get_users():
