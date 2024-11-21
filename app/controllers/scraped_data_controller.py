@@ -48,8 +48,20 @@ async def delete_scraped_data(id: str):
     result = await scraped_data_collection.delete_one({"_id": ObjectId(id)})
     return result.deleted_count > 0
 
-# Function to check if a URL exists in website_content
+
 async def check_url_exists(url: str) -> bool:
-    """Check if a URL already exists in the website_content field of the ScrapedData collection."""
-    exists = await scraped_data_collection.find_one({"website_content.url": url})
-    return exists is not None
+    """
+    Check if a URL already exists in the website_content field of the ScrapedData collection.
+    """
+    try:
+        # Query the MongoDB collection for a matching URL in the `website_content.url` field
+        exists = await scraped_data_collection.find_one(
+            {"website_content.url": {"$eq": url}}
+        )
+
+        # Return True if a matching document is found, otherwise False
+        return exists is not None
+    except Exception as e:
+        # Log and handle potential exceptions
+        print(f"Error checking URL existence: {e}")
+        raise e  # Re-raise exception to handle it at a higher level if needed
