@@ -54,7 +54,7 @@ async def validate_url_exists(
     """
     Endpoint to validate if a URL exists in the website_content of ScrapedData.
     """
-    exists = await scraped_data_controller.check_url_exists(url)
+    exists = await scraped_data_controller.check_url_exists(str(url))
     if exists:
         return {"exists": True, "message": "URL already exists in the database."}
     return {"exists": False, "message": "URL does not exist in the database."}
