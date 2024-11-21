@@ -37,7 +37,6 @@ class ScrapedData(BaseModel):
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
 
-
 # MongoDB to Pydantic conversion helper
 def scraped_data_helper(scraped_data) -> dict:
     return {

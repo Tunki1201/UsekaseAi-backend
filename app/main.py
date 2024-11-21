@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from app.auth_middleware import AuthMiddleware
 from app.views import (
     account_view,
     api_usage_view,
@@ -10,9 +9,10 @@ from app.views import (
     payments_view,
     report_view,
     scraped_data_view,
+    user_view,
 )
-from app.views import user_view
-from app.views.user_view import router
+
+# from app.controllers.user_controller import router as user_router  # Import the router
 
 from app.db import (
     client,
@@ -55,7 +55,8 @@ async def shutdown_db():
 
 
 # Include routers
-app.include_router(user_view.router, prefix="/user")
+app.include_router(user_view.router, prefix="/users")
+# app.include_router(user_router, prefix="/users")
 app.include_router(scraped_data_view.router, prefix="/scraped_data")
 app.include_router(error_log_view.router, prefix="/error_log")
 app.include_router(notification_view.router, prefix="/notification")

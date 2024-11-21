@@ -1,19 +1,20 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from typing import List
 from app.models.scraped_data_model import ScrapedData
 from app.controllers import scraped_data_controller
+from app.schema import ValidateUrlExists
 
 router = APIRouter()
 
 
 # GET all scraped data
-@router.get("/scraped-data/", response_model=List[ScrapedData])
+@router.get("/get/", response_model=List[ScrapedData])
 async def get_scraped_data():
     return await scraped_data_controller.get_all_scraped_data()
 
 
 # GET a specific scraped data entry by ID
-@router.get("/scraped-data/{id}", response_model=ScrapedData)
+@router.get("/get/{id}", response_model=ScrapedData)
 async def get_scraped_data_entry(id: str):
     scraped_data = await scraped_data_controller.get_scraped_data_by_id(id)
     if scraped_data is None:
@@ -22,13 +23,13 @@ async def get_scraped_data_entry(id: str):
 
 
 # POST: Create a new scraped data entry
-@router.post("/scraped-data/", response_model=ScrapedData)
+@router.post("/create/", response_model=ScrapedData)
 async def create_scraped_data_entry(data: ScrapedData):
     return await scraped_data_controller.create_scraped_data(data)
 
 
 # PUT: Update a scraped data entry by ID
-@router.put("/scraped-data/{id}", response_model=ScrapedData)
+@router.put("/update/{id}", response_model=ScrapedData)
 async def update_scraped_data_entry(id: str, data: ScrapedData):
     updated_data = await scraped_data_controller.update_scraped_data(id, data)
     if updated_data is None:
@@ -37,9 +38,23 @@ async def update_scraped_data_entry(id: str, data: ScrapedData):
 
 
 # DELETE: Delete a scraped data entry by ID
-@router.delete("/scraped-data/{id}")
+@router.delete("/delete/{id}")
 async def delete_scraped_data_entry(id: str):
     deleted = await scraped_data_controller.delete_scraped_data(id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Scraped data not found")
     return {"status": "Scraped data deleted"}
+
+
+# New endpoint to validate URL existence
+@router.get("/check-url/")
+async def validate_url_exists(
+    url: ValidateUrlExists = Query(..., description="URL to check")
+):
+    """
+    Endpoint to validate if a URL exists in the website_content of ScrapedData.
+    """
+    exists = await scraped_data_controller.check_url_exists(url)
+    if exists:
+        return {"exists": True, "message": "URL already exists in the database."}
+    return {"exists": False, "message": "URL does not exist in the database."}

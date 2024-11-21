@@ -6,9 +6,10 @@ from app.db import db
 
 # MongoDB Chapter collection
 user_collection = db["users"]
+
+
 # Pydantic model
 class User(BaseModel):
-    id: Optional[str] = Field(None, alias="_id")
     email: str
     first_name: str
     last_name: str
@@ -28,19 +29,17 @@ class User(BaseModel):
         json_encoders = {datetime: lambda v: v.isoformat()}
 
 
-# MongoDB to Pydantic conversion helper
 def user_helper(user) -> dict:
     return {
-        "id": str(user["_id"]),
-        "email": user["email"],
-        "first_name": user["first_name"],
-        "last_name": user["last_name"],
-        "avatar": user.get("avatar"),
-        "auth_provider": user["auth_provider"],
-        "is_authenticated": user["is_authenticated"],
         "client_id": user.get("client_id"),
-        "created_at": user["created_at"],
-        "modified_at": user["modified_at"],
+        "email": user.get("email"),
+        "first_name": user.get("first_name"),
+        "last_name": user.get("last_name"),
+        "imageUrl": user.get("imageUrl"),
+        "auth_provider": user.get("auth_provider"),
+        "is_authenticated": user.get("is_authenticated", False),
+        "created_at": user.get("created_at"),
+        "modified_at": user.get("modified_at"),
         "role": user.get("role"),
         "team": user.get("team"),
         "credits_purchased": user.get("credits_purchased", 0),

@@ -46,3 +46,9 @@ async def update_scraped_data(id: str, data: ScrapedData):
 async def delete_scraped_data(id: str):
     result = await scraped_data_collection.delete_one({"_id": ObjectId(id)})
     return result.deleted_count > 0
+
+# Function to check if a URL exists in website_content
+async def check_url_exists(url: str) -> bool:
+    """Check if a URL already exists in the website_content field of the ScrapedData collection."""
+    exists = await scraped_data_collection.find_one({"website_content.url": url})
+    return exists is not None
