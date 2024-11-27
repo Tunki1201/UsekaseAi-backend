@@ -1,5 +1,9 @@
+from http.client import HTTPException
+from app.utils import fetch_company_info
 from bson import ObjectId
 from app.models.scraped_data_model import (
+    CompanyWebsiteContents,
+    KeyActivity,
     scraped_data_collection,
     scraped_data_helper,
     ScrapedData,
@@ -54,13 +58,68 @@ async def check_url_exists(url: str) -> bool:
     Check if a URL already exists in the website_content field of the ScrapedData collection.
     """
     try:
+        print("------------------------------url:", url)
         # Query the MongoDB collection for a matching URL in the `website_content.url` field
-        exists = await scraped_data_collection.find_one(
-            {"website_content.url": {"$eq": url}}
-        )
+        exists = await scraped_data_collection.find_one({"company_url": url})
 
-        # Return True if a matching document is found, otherwise False
-        return exists is not None
+        print(exists)
+        # If a matching document is found, return True
+        if exists is not None:
+            return exists
+
+        # If the URL doesn't exist, call the external API
+        company_name = ""  # Replace with dynamic logic to get the company name
+        company_background = ""  # Replace with dynamic logic if needed
+        company_data = fetch_company_info(url, company_name, company_background)
+
+        if company_data:
+            # Map the API response to the ScrapedData model
+            scraped_data = ScrapedData(
+                company_url=company_data.get("company_url"),
+                company_name=company_data.get("company_name"),
+                company_background=company_data.get("company_background"),
+                company_industries=company_data.get("company_industry", []),
+                linkedin_url=company_data.get("linkedin_profile"),
+                glassdoor_url=company_data.get("glassdoor_profile"),
+                company_website_contents=[
+                    CompanyWebsiteContents(
+                        url=content["url"],
+                        title=content.get("raw_content", "").split("\n")[
+                            1
+                        ],  # Extract title from the second line (after the first newline)
+                        content=content.get("raw_content", "")
+                        .split("\n", 1)[1]
+                        .strip(),  # Extract content after the first newline
+                    )
+                    for content in company_data.get("company_website_contents", [])
+                ],
+                key_activities=[
+                    KeyActivity(
+                        activity=activity["activity"],
+                        value_chain_area=activity["value_chain_area"],
+                        ai_applicability_score=activity["ai_applicability_score"],
+                    )
+                    for activity in company_data.get("value_chain_activities", {}).get(
+                        "key_activities", []
+                    )
+                ],
+            )
+
+            result = await scraped_data_collection.insert_one(
+                scraped_data.dict(by_alias=True)
+            )
+
+        if result.id:
+            print(f"Data for {company_data['company_name']} inserted successfully.")
+            return {
+                "message": "Data inserted successfully",
+                "company_data": company_data,
+            }
+        else:
+            raise HTTPException(
+                status_code=500, detail="Failed to save data to the database"
+            )
+
     except Exception as e:
         # Log and handle potential exceptions
         print(f"Error checking URL existence: {e}")

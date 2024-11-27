@@ -49,12 +49,36 @@ async def delete_scraped_data_entry(id: str):
 # New endpoint to validate URL existence
 @router.get("/check-url/")
 async def validate_url_exists(
-    url: ValidateUrlExists = Query(..., description="URL to check")
+    url: str = Query(..., description="URL to check")  # Accept URL as query parameter
 ):
     """
     Endpoint to validate if a URL exists in the website_content of ScrapedData.
     """
-    exists = await scraped_data_controller.check_url_exists(str(url))
-    if exists:
-        return {"exists": True, "message": "URL already exists in the database."}
-    return {"exists": False, "message": "URL does not exist in the database."}
+    try:
+        # Call the controller function to check URL existence
+        result = await scraped_data_controller.check_url_exists(url)
+
+        if isinstance(result, dict) and 'company_url' in result:
+            # If the URL already exists, return the existing data
+            return {
+                "exists": True,
+                "message": "URL already exists in the database.",
+                "company_data": result  # Existing data
+            }
+        elif isinstance(result, dict) and 'message' in result and 'company_data' in result:
+            # If new data was inserted successfully
+            return {
+                "exists": False,
+                "message": result['message'],
+                "company_data": result.get('company_data', {})
+            }
+        else:
+            # In case the result is not as expected, return a generic message
+            return {
+                "exists": False,
+                "message": "Unable to validate URL at the moment."
+            }
+
+    except Exception as e:
+        # Handle any unexpected errors
+        raise HTTPException(status_code=500, detail=f"Error checking URL: {str(e)}")
