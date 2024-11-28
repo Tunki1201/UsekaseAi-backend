@@ -1,6 +1,6 @@
 from http.client import HTTPException
-from app.utils import fetch_company_info
 from bson import ObjectId
+from app.utils.scrapping_engine import fetch_company_info
 from app.models.scraped_data_model import (
     CompanyWebsiteContents,
     KeyActivity,
@@ -8,7 +8,6 @@ from app.models.scraped_data_model import (
     scraped_data_helper,
     ScrapedData,
 )
-from app.schema import ValidateUrlExists
 
 # CRUD Operations for Scraped Data
 
@@ -53,27 +52,27 @@ async def delete_scraped_data(id: str):
     return result.deleted_count > 0
 
 
-async def check_url_exists(url: str) -> bool:
+async def check_url_exists(url: str) -> str:
     """
-    Check if a URL already exists in the website_content field of the ScrapedData collection.
+    Check if a URL already exists in the ScrapedData collection.
     """
     try:
-        print("------------------------------url:", url)
-        # Query the MongoDB collection for a matching URL in the `website_content.url` field
+        # Query MongoDB for a matching URL
         exists = await scraped_data_collection.find_one({"company_url": url})
 
-        print(exists)
-        # If a matching document is found, return True
         if exists is not None:
-            return exists
+            return exists  # URL exists
 
         # If the URL doesn't exist, call the external API
-        company_name = ""  # Replace with dynamic logic to get the company name
-        company_background = ""  # Replace with dynamic logic if needed
+        company_name = ""  # Replace with logic to get the company name dynamically
+        company_background = (
+            ""  # Replace with logic to get company background dynamically
+        )
         company_data = fetch_company_info(url, company_name, company_background)
 
+        print("---------------------------------------------------", url, company_data)
         if company_data:
-            # Map the API response to the ScrapedData model
+            # Prepare ScrapedData model for insertion
             scraped_data = ScrapedData(
                 company_url=company_data.get("company_url"),
                 company_name=company_data.get("company_name"),
@@ -84,12 +83,10 @@ async def check_url_exists(url: str) -> bool:
                 company_website_contents=[
                     CompanyWebsiteContents(
                         url=content["url"],
-                        title=content.get("raw_content", "").split("\n")[
-                            1
-                        ],  # Extract title from the second line (after the first newline)
+                        title=content.get("raw_content", "").split("\n")[1],
                         content=content.get("raw_content", "")
                         .split("\n", 1)[1]
-                        .strip(),  # Extract content after the first newline
+                        .strip(),
                     )
                     for content in company_data.get("company_website_contents", [])
                 ],
@@ -105,22 +102,40 @@ async def check_url_exists(url: str) -> bool:
                 ],
             )
 
+            # Insert the data into MongoDB
             result = await scraped_data_collection.insert_one(
                 scraped_data.dict(by_alias=True)
             )
 
-        if result.id:
-            print(f"Data for {company_data['company_name']} inserted successfully.")
-            return {
-                "message": "Data inserted successfully",
-                "company_data": company_data,
-            }
-        else:
-            raise HTTPException(
-                status_code=500, detail="Failed to save data to the database"
-            )
+            if result.inserted_id:
+                return "inserted"  # Indicate new data insertion
+            else:
+                raise HTTPException(
+                    status_code=500, detail="Failed to save data to the database."
+                )
 
     except Exception as e:
         # Log and handle potential exceptions
         print(f"Error checking URL existence: {e}")
-        raise e  # Re-raise exception to handle it at a higher level if needed
+        raise e
+
+
+async def get_company_info(url: str):
+    """
+    Fetch company information based on the given URL.
+    """
+    try:
+        # Query MongoDB to find a matching document by company_url
+        document = await scraped_data_collection.find_one({"company_url": url})
+
+        if not document:
+            # If no matching document is found, return None
+            return None
+
+        return document
+
+    except Exception as e:
+        # Log or handle the exception as needed
+        raise HTTPException(
+            status_code=500, detail=f"Error fetching company info: {str(e)}"
+        )

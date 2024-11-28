@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from typing import List
 from app.models.report_model import Report
 from app.controllers import report_controller
@@ -43,3 +43,29 @@ async def delete_report(id: str):
     if not deleted:
         raise HTTPException(status_code=404, detail="Report not found")
     return {"status": "Report deleted"}
+
+
+@router.get("/generate-report/")
+async def generate_report_view(url: str = Query(..., description="Company URL for report generation")):
+    """
+    Endpoint to generate a report for the provided company URL.
+    """
+    try:
+        # Call the controller to handle the report generation
+        report_data = await report_controller.generate_report(url)
+        
+        if not report_data:
+            raise HTTPException(status_code=404, detail="Report generation failed. No data found for the given URL.")
+
+        return {
+            "success": True,
+            "message": "Report generated successfully.",
+            "data": report_data,
+        }
+
+    except HTTPException as e:
+        raise e
+
+    except Exception as e:
+        print(f"Error generating report for URL {url}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error while generating report.")

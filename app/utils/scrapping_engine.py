@@ -8,8 +8,6 @@ load_dotenv()
 
 API_TOKEN = os.getenv("API_TOKEN")  # Get API Token from environment
 
-print("API_TOKEN:", API_TOKEN)
-
 
 def fetch_company_info(url: str, company_name: str, company_background: str):
     """

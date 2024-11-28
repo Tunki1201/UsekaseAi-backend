@@ -2,7 +2,6 @@ from fastapi import APIRouter, HTTPException, Query
 from typing import List
 from app.models.scraped_data_model import ScrapedData
 from app.controllers import scraped_data_controller
-from app.schema import ValidateUrlExists
 
 router = APIRouter()
 
@@ -59,27 +58,41 @@ async def validate_url_exists(
         result = await scraped_data_controller.check_url_exists(url)
 
         if isinstance(result, dict) and "company_url" in result:
-            # If the URL already exists, return the existing data
-            return {
-                "exists": True,
-                "message": "URL already exists in the database.",
-                "company_data": result,  # Existing data
-            }
-        elif (
-            isinstance(result, dict)
-            and "message" in result
-            and "company_data" in result
-        ):
-            # If new data was inserted successfully
+            # If the URL already exists
+            return {"exists": True, "message": "URL already exists in the database."}
+        elif isinstance(result, str) and result == "inserted":
+            # If a new entry was successfully inserted
             return {
                 "exists": False,
-                "message": result["message"],
-                "company_data": result.get("company_data", {}),
+                "message": "URL did not exist; new data inserted successfully.",
             }
         else:
-            # In case the result is not as expected, return a generic message
+            # Unexpected result
             return {"exists": False, "message": "Unable to validate URL at the moment."}
 
     except Exception as e:
         # Handle any unexpected errors
         raise HTTPException(status_code=500, detail=f"Error checking URL: {str(e)}")
+
+
+@router.get("/get-company-info/")
+async def get_company_info(url: str = Query(..., description="URL to look up")):
+    """
+    Endpoint to fetch full company information based on the provided company URL.
+    """
+    try:
+        # Call the controller to fetch data
+        document = await scraped_data_controller.get_company_info(url)
+
+        if not document:
+            # Return a 404 error if the URL is not found
+            raise HTTPException(status_code=404, detail="Company URL not found")
+
+        # Return the entire document as-is
+        return document
+
+    except Exception as e:
+        # Handle any unexpected errors
+        raise HTTPException(
+            status_code=500, detail=f"Error retrieving company info: {str(e)}"
+        )

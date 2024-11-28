@@ -1,6 +1,8 @@
 from bson import ObjectId
 from app.models.report_model import report_collection, report_helper, Report
 from datetime import datetime
+from app.utils.report_generator import ReportGenerator
+from app.models.scraped_data_model import scraped_data_collection
 
 # CRUD Operations for Report
 
@@ -44,3 +46,29 @@ async def update_report(id: str, report_data: Report):
 async def delete_report(id: str):
     result = await report_collection.delete_one({"_id": ObjectId(id)})
     return result.deleted_count > 0
+
+
+async def generate_report(url: str) -> dict:
+    """
+    Fetch company data and use the ReportGenerator to create a report.
+
+    :param url: The company URL.
+    :return: The generated report.
+    """
+    try:
+        # Fetch the company data from the database
+        company_data = await scraped_data_collection.find_one({"company_url": url})
+        if not company_data:
+            return None
+
+        # Use the ReportGenerator to create the report
+        report = await ReportGenerator.generate_report(company_data)
+
+        # # Optionally save the report in the database
+        await report_collection.insert_one(report)
+
+        return report
+
+    except Exception as e:
+        print(f"Error in generate_report: {str(e)}")
+        raise
