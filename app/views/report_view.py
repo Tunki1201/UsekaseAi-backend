@@ -46,21 +46,27 @@ async def delete_report(id: str):
 
 
 @router.get("/generate-report/")
-async def generate_report_view(url: str = Query(..., description="Company URL for report generation")):
+async def generate_report_view(
+    url: str = Query(..., description="Company URL for report generation"),
+    clientId: str = Query(..., description="Client ID for the report"),
+):
     """
     Endpoint to generate a report for the provided company URL.
     """
     try:
         # Call the controller to handle the report generation
-        report_data = await report_controller.generate_report(url)
-        
+        report_data = await report_controller.generate_report(url, clientId)
+
         if not report_data:
-            raise HTTPException(status_code=404, detail="Report generation failed. No data found for the given URL.")
+            raise HTTPException(
+                status_code=404,
+                detail="Report generation failed. No data found for the given URL.",
+            )
 
         return {
             "success": True,
             "message": "Report generated successfully.",
-            "data": report_data,
+            "report_data": report_data,
         }
 
     except HTTPException as e:
@@ -68,4 +74,6 @@ async def generate_report_view(url: str = Query(..., description="Company URL fo
 
     except Exception as e:
         print(f"Error generating report for URL {url}: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal server error while generating report.")
+        raise HTTPException(
+            status_code=500, detail="Internal server error while generating report."
+        )

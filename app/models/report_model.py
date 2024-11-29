@@ -1,6 +1,6 @@
 from bson import ObjectId
 from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import Dict, Optional, List
 from datetime import datetime
 from app.db import db  # Import the database setup
 
@@ -11,21 +11,22 @@ report_collection = db["reports"]
 # Pydantic model for Report
 class Report(BaseModel):
     id: Optional[str] = Field(None, alias="_id")
-    number: str
-    chapters: List[str]  # Assuming chapters is a list of strings
-    delayed_time: Optional[int] = 0  # Optional int representing delayed time in minutes
-    tone: Optional[str]  # Tone of the report
-    downloaded: bool = False  # Boolean indicating if the report has been downloaded
-    created_at: datetime = Field(
-        default_factory=datetime.utcnow
-    )  # Auto-generated timestamp
-    client_id: ObjectId  # Foreign key relation to the Client entity
-    account_id: ObjectId  # Foreign key relation to the Account entity
-
+    number: str = "RPT-DEFAULT"  # Default number if not provided
+    chapters: Dict[str, str] = Field(default_factory=dict)  # Default empty dict for chapters
+    delayed_time: Optional[int] = 0
+    tone: Optional[str] = "neutral"  # Default tone
+    downloaded: bool = False
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    client_id: str = "UNKNOWN_CLIENT"  # Default client ID as a string
+    account_id: str = "UNKNOWN_ACCOUNT"  # Default account ID as a string
+    company_url: str = ""
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
-        json_encoders = {datetime: lambda v: v.isoformat()}
+        json_encoders = {
+            datetime: lambda v: v.isoformat(),
+            ObjectId: str,  # Convert ObjectId to string
+        }
 
 
 # MongoDB to Pydantic conversion helper

@@ -29,6 +29,7 @@ class ReportGenerator:
                 data=json.dumps(payload),
             )
 
+            print('------------------------response', response.json())
             # Check for errors
             if response.status_code != 200:
                 raise Exception(
