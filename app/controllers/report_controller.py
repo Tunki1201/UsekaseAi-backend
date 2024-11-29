@@ -1,6 +1,8 @@
+import os
 from typing import Dict, Optional
 from bson import ObjectId
 from pydantic import BaseModel, Field
+import requests
 from app.models.report_model import report_collection, report_helper, Report
 from datetime import datetime
 from app.utils.report_generator import ReportGenerator
@@ -8,7 +10,11 @@ from app.models.scraped_data_model import scraped_data_collection
 from pymongo.errors import PyMongoError
 
 # CRUD Operations for Report
+# Define the folder to save the downloaded files
+BACKEND_REPORTS_FOLDER = os.path.join(os.getcwd(), "backend_reports")
 
+# Ensure the folder exists
+os.makedirs(BACKEND_REPORTS_FOLDER, exist_ok=True)
 
 # Get all reports
 async def get_all_reports():
@@ -79,10 +85,34 @@ async def generate_report(url: str, clientId: str) -> dict:
         # Use the ReportGenerator to create the report
         report = await ReportGenerator.generate_report(company_data)
 
+        # Download the files from file.io and save them locally
+        downloaded_files = {}
+        for chapter, file_url in report.items():
+            try:
+                # Download the file from file.io
+                file_data = requests.get(file_url)
+                if file_data.status_code == 200:
+                    # Extract the file name from the URL or generate a unique one
+                    file_name = chapter + ".pdf"  # You can adjust the file extension based on the type
+                    file_path = os.path.join(BACKEND_REPORTS_FOLDER, file_name)
+
+                    # Save the file locally
+                    with open(file_path, "wb") as f:
+                        f.write(file_data.content)
+
+                    # Update the report data with the local file path
+                    downloaded_files[chapter] = file_path
+                else:
+                    print(f"Failed to download {chapter} from {file_url}")
+                    downloaded_files[chapter] = None
+            except Exception as e:
+                print(f"Error downloading {chapter} from {file_url}: {e}")
+                downloaded_files[chapter] = None
+
         # Create the new report object
         report_data = {
             "number": "RPT-DEFAULT",  # Or generate a unique identifier if needed
-            "chapters": report,  # Store the provided chapters
+            "chapters": downloaded_files,  # Store the local file paths
             "tone": "neutral",  # Default or set dynamically
             "downloaded": False,  # Initial state
             "created_at": datetime.utcnow(),
