@@ -70,7 +70,7 @@ async def check_url_exists(url: str) -> str:
         )
         company_data = fetch_company_info(url, company_name, company_background)
 
-        print("---------------------------------------------------", url, company_data)
+        # print("---------------------------------------------------", url, company_data)
         if company_data:
             # Prepare ScrapedData model for insertion
             scraped_data = ScrapedData(
@@ -107,8 +107,9 @@ async def check_url_exists(url: str) -> str:
                 scraped_data.dict(by_alias=True)
             )
 
-            if result.inserted_id:
-                return "inserted"  # Indicate new data insertion
+            print("---------------------------------------------------", result)
+            if result:
+                return result  # Indicate new data insertion
             else:
                 raise HTTPException(
                     status_code=500, detail="Failed to save data to the database."
@@ -131,6 +132,10 @@ async def get_company_info(url: str):
         if not document:
             # If no matching document is found, return None
             return None
+
+        # Convert ObjectId to string if needed
+        if "_id" in document:
+            document["_id"] = str(document["_id"])
 
         return document
 

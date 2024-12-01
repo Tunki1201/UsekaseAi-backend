@@ -1,5 +1,6 @@
 import os
 from typing import Dict, Optional
+from urllib.parse import urlparse
 from bson import ObjectId
 from pydantic import BaseModel, Field
 import requests
@@ -15,6 +16,7 @@ BACKEND_REPORTS_FOLDER = os.path.join(os.getcwd(), "backend_reports")
 
 # Ensure the folder exists
 os.makedirs(BACKEND_REPORTS_FOLDER, exist_ok=True)
+
 
 # Get all reports
 async def get_all_reports():
@@ -57,6 +59,36 @@ async def delete_report(id: str):
     return result.deleted_count > 0
 
 
+def generate_unique_folder_name(url: str, client_id: str) -> str:
+    """
+    Generate a unique folder name based on the company URL, client ID, and current date.
+
+    :param url: The company URL.
+    :param client_id: The client ID.
+    :return: The generated unique folder path.
+    """
+    # Get the domain from the URL to avoid using long URLs directly in the folder name
+    parsed_url = urlparse(url)
+    domain_name = parsed_url.netloc.replace(
+        ".", "_"
+    )  # Replace dots with underscores for valid folder names
+
+    # Get the current date in YYYYMMDD format
+    current_date = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    # Create a unique folder name using URL domain, client ID, and current date
+    folder_name = f"{domain_name}_{client_id}_{current_date}"
+
+    # Ensure the folder is created under the 'backend' folder
+    backend_folder = "backend"  # Your desired base folder path
+    unique_folder_path = os.path.join(backend_folder, folder_name)
+
+    # Create the folder if it does not exist
+    os.makedirs(unique_folder_path, exist_ok=True)
+
+    return unique_folder_path
+
+
 async def generate_report(url: str, clientId: str) -> dict:
     """
     Fetch company data, check if a report already exists for the given URL and clientId,
@@ -85,6 +117,9 @@ async def generate_report(url: str, clientId: str) -> dict:
         # Use the ReportGenerator to create the report
         report = await ReportGenerator.generate_report(company_data)
 
+        # Generate a unique folder to save downloaded files
+        unique_folder_path = generate_unique_folder_name(url, clientId)
+
         # Download the files from file.io and save them locally
         downloaded_files = {}
         for chapter, file_url in report.items():
@@ -92,9 +127,11 @@ async def generate_report(url: str, clientId: str) -> dict:
                 # Download the file from file.io
                 file_data = requests.get(file_url)
                 if file_data.status_code == 200:
-                    # Extract the file name from the URL or generate a unique one
-                    file_name = chapter + ".pdf"  # You can adjust the file extension based on the type
-                    file_path = os.path.join(BACKEND_REPORTS_FOLDER, file_name)
+                    # Extract the file name from the chapter name or use the chapter as the name
+                    file_name = (
+                        chapter + ".pdf"
+                    )  # You can adjust the file extension based on the type
+                    file_path = os.path.join(unique_folder_path, file_name)
 
                     # Save the file locally
                     with open(file_path, "wb") as f:

@@ -22,7 +22,6 @@ class KeyActivity(BaseModel):
 
 
 class ScrapedData(BaseModel):
-    id: Optional[str] = Field(None, alias="_id")
     company_url: str
     client_id: ObjectId = None  # Reference to Client ID (as ObjectId)
     company_name: str  # Name of the entity
